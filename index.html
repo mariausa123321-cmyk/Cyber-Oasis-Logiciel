@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b7a4b"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><meta name="mobile-web-app-capable" content="yes"><title>Logisel - سيبار الواحة سيدي سليمان</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f4f6f5;--card:#fff;--tx:#14201b;--mu:#66756e;--pr:#0b7a4b;--pt:#fff;--bd:#dfe6e2;--rd:#c62828;--am:#b26a00}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1512;--card:#17211c;--tx:#e8f0ec;--mu:#93a49b;--pr:#2fbf80;--pt:#04170e;--bd:#26342d;--rd:#ff6b6b;--am:#ffb74d}}
+:root[data-theme="dark"]{--bg:#0e1512;--card:#17211c;--tx:#e8f0ec;--mu:#93a49b;--pr:#2fbf80;--pt:#04170e;--bd:#26342d;--rd:#ff6b6b;--am:#ffb74d}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Segoe UI",Tahoma,Arial,sans-serif;padding-bottom:70px}
+header{background:var(--pr);color:var(--pt);padding:12px 16px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+header b{font-size:20px;letter-spacing:.5px}header small{display:block;opacity:.85;font-size:12px}
+main{max-width:640px;margin:0 auto;padding:12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:10px 14px;background:var(--pr);color:var(--pt);font-weight:600}
+button.g{background:transparent;color:var(--pr);border:1px solid var(--pr)}
+button.d{background:transparent;color:var(--rd);border:1px solid var(--rd);padding:6px 10px}
+input{font:inherit;width:100%;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx)}
+label{font-size:13px;color:var(--mu);display:block;margin:8px 0 3px}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}
+.item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--bd)}
+.item:last-child{border:0}.item small{color:var(--mu);display:block}
+.q{display:flex;align-items:center;gap:6px}.q button{padding:4px 12px;flex:none}
+.tot{font-size:26px;font-weight:800;color:var(--pr)}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--bd);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;background:none;color:var(--mu);border-radius:0;padding:12px 4px;font-size:14px}
+nav button.on{color:var(--pr);border-top:3px solid var(--pr)}
+.low{color:var(--am);font-weight:700}.out{color:var(--rd);font-weight:700}
+.hide{display:none}
+#ov{position:fixed;inset:0;background:#000d;z-index:20;display:none;flex-direction:column;align-items:center;justify-content:center;padding:16px;gap:12px}
+#ov.on{display:flex}#reader{width:100%;max-width:420px;background:#000;border-radius:12px;overflow:hidden}
+#toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:20px;z-index:30;display:none;max-width:90%;text-align:center}
+.fr{position:relative;width:100%;max-width:420px}.fr video{width:100%;display:block;border-radius:12px;background:#000;min-height:220px}.fr:after{content:"";position:absolute;left:8%;right:8%;top:50%;height:2px;background:#ff3b30}
+.st{display:grid;grid-template-columns:1fr 1fr;gap:8px}.st div{background:var(--bg);border-radius:10px;padding:10px;text-align:center}.st b{font-size:20px;display:block}
+</style>
+</head>
+<body>
+<header><b>Logisel</b><small>سيبار الواحة - سيدي سليمان</small></header>
+<main>
+<section id="v-sale">
+ <div class="card">
+  <button style="width:100%;font-size:17px;padding:14px" onclick="scan('sale')">📷 مسح باركود المنتج</button><div style="font-size:12px;color:var(--mu);text-align:center;margin-top:6px">يفتح كاميرا الهاتف: صوّر الباركود وسيُضاف المنتج تلقائيًا</div>
+  <div class="row" style="margin-top:8px"><input id="man" inputmode="numeric" placeholder="أو اكتب الباركود / الاسم"><button class="g" style="flex:none" onclick="manual()">إضافة</button></div>
+ </div>
+ <div class="card"><div id="cart"></div>
+  <div class="row" style="margin-top:10px"><div>المجموع</div><div class="tot" id="total" style="text-align:left">0 دج</div></div>
+  <div class="row" style="margin-top:10px"><button class="g" onclick="cart=[];rc()">إفراغ</button><button onclick="pay()">✔ إتمام البيع</button></div>
+ </div>
+</section>
+<section id="v-prod" class="hide">
+ <div class="card">
+  <b>إضافة / تعديل منتج</b>
+  <label>الباركود</label><div class="row"><input id="pb" inputmode="numeric"><button class="g" style="flex:none" onclick="scan('prod')">📷</button></div>
+  <label>اسم المنتج</label><input id="pn">
+  <div class="row"><div><label>السعر (دج)</label><input id="pp" type="number" inputmode="decimal"></div><div><label>الكمية في المخزون</label><input id="ps" type="number" inputmode="numeric"></div></div>
+  <button style="width:100%;margin-top:10px" onclick="saveP()">حفظ المنتج</button>
+ </div>
+ <input id="sq" placeholder="🔍 بحث في المنتجات" oninput="rp()" style="margin-bottom:10px">
+ <div class="card" id="plist"></div>
+</section>
+<section id="v-rep" class="hide">
+ <div class="card"><b>مبيعات اليوم</b><div class="st" style="margin-top:8px"><div><b id="r1">0</b>دج</div><div><b id="r2">0</b>عدد الفواتير</div></div></div>
+ <div class="card"><b>تنبيه المخزون (≤ 5)</b><div id="lowl"></div></div>
+ <div class="card"><b>آخر العمليات</b><div id="sl"></div></div>
+ <button class="g" style="width:100%" onclick="backup()">💾 نسخة احتياطية (نسخ)</button>
+</section>
+</main>
+<nav><button class="on" onclick="tab('sale',this)">🛒 البيع</button><button onclick="tab('prod',this)">📦 المنتجات</button><button onclick="tab('rep',this)">📊 التقرير</button></nav>
+<div id="ov"><div id="fr" class="fr"><video id="vd" playsinline muted autoplay></video></div><div id="reader" class="hide"></div><div id="hint" style="color:#fff;text-align:center"></div><div class="row" style="max-width:420px"><button id="tb" class="hide" onclick="torch()">🔦 الفلاش</button><button onclick="$('pf').click()">📸 تصوير</button><button onclick="stopScan()">✖ إغلاق</button></div></div><input id="pf" type="file" accept="image/*" capture="environment" class="hide" onchange="photo(this)">
+<div id="toast"></div>
+<script>
+let P=[],S=[],cart=[],mode='sale',sc=null,last=0;
+try{P=JSON.parse(localStorage.getItem('lg_p')||'[]');S=JSON.parse(localStorage.getItem('lg_s')||'[]')}catch(e){}
+const $=id=>document.getElementById(id);
+const save=()=>{try{localStorage.setItem('lg_p',JSON.stringify(P));localStorage.setItem('lg_s',JSON.stringify(S))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const f=n=>(Math.round(n*100)/100).toLocaleString('en');
+function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',2200)}
+function tab(n,b){['sale','prod','rep'].forEach(x=>$('v-'+x).classList.toggle('hide',x!==n));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');if(n==='prod')rp();if(n==='rep')rr()}
+function beep(){try{const a=new AudioContext(),o=a.createOscillator();o.connect(a.destination);o.frequency.value=900;o.start();setTimeout(()=>{o.stop();a.close()},120)}catch(e){}}
+let stream=null,tm=0,tOn=false;
+async function scan(m){mode=m;$('ov').classList.add('on');$('hint').textContent='وجّه الكاميرا نحو الباركود';$('tb').classList.add('hide');$('fr').classList.remove('hide');
+ try{
+  if(!('BarcodeDetector' in window))throw 0;
+  let fm=['ean_13','ean_8','upc_a','upc_e','code_128','code_39','itf','qr_code'];
+  try{const sp=await BarcodeDetector.getSupportedFormats();fm=fm.filter(x=>sp.includes(x))}catch(e){}
+  const det=new BarcodeDetector({formats:fm});
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}});
+  const v=$('vd');v.srcObject=stream;await v.play();
+  const tr=stream.getVideoTracks()[0];
+  try{const c=tr.getCapabilities();if(c.torch)$('tb').classList.remove('hide');if(c.focusMode&&c.focusMode.includes('continuous'))tr.applyConstraints({advanced:[{focusMode:'continuous'}]})}catch(e){}
+  const loop=async()=>{if(!stream)return;try{const r=await det.detect(v);if(r.length&&Date.now()-last>1800){last=Date.now();beep();navigator.vibrate&&navigator.vibrate(60);onCode(r[0].rawValue)}}catch(e){}tm=setTimeout(loop,120)};
+  loop();return
+ }catch(e){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}}
+ try{await loadLib();$('fr').classList.add('hide');$('reader').classList.remove('hide');sc=new Html5Qrcode('reader');
+  await sc.start({facingMode:'environment'},{fps:10,qrbox:{width:260,height:140}},c=>{if(Date.now()-last<1800)return;last=Date.now();beep();onCode(c)},()=>{});return
+ }catch(e){}
+ $('fr').classList.add('hide');$('hint').textContent='الكاميرا المباشرة غير متاحة هنا. استعمل زر التصوير أو الإدخال اليدوي'}
+function torch(){try{tOn=!tOn;stream.getVideoTracks()[0].applyConstraints({advanced:[{torch:tOn}]})}catch(e){}}
+function stopScan(){$('ov').classList.remove('on');clearTimeout(tm);tOn=false;if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}if(sc){sc.stop().then(()=>sc.clear()).catch(()=>{});sc=null}$('reader').classList.add('hide')}
+function loadLib(){return new Promise((ok,no)=>{if(window.Html5Qrcode)return ok();const t=document.createElement('script');t.src='https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js';t.onload=ok;t.onerror=no;document.head.appendChild(t)})}
+async function photo(i){const f=i.files[0];i.value='';if(!f)return;toast('جارٍ قراءة الباركود...');let code=null;
+ try{if('BarcodeDetector' in window){const r=await new BarcodeDetector().detect(await createImageBitmap(f));if(r.length)code=r[0].rawValue}}catch(e){}
+ if(!code){try{await loadLib();code=await new Html5Qrcode('reader').scanFile(f,false)}catch(e){}}
+ if(code){beep();stopScan();onCode(code)}else toast('لم يُقرأ الباركود، قرّب الكاميرا وأعد التصوير')}
+function onCode(c){
+ if(mode==='prod'){stopScan();$('pb').value=c;const p=P.find(x=>x.b===c);if(p){$('pn').value=p.n;$('pp').value=p.p;$('ps').value=p.s;toast('منتج موجود - عدّل بياناته')}return}
+ const p=P.find(x=>x.b===c);
+ if(p)add(p);else{stopScan();toast('منتج جديد! أضفه أولاً');tab('prod',document.querySelectorAll('nav button')[1]);$('pb').value=c;$('pn').value='';$('pp').value='';$('ps').value='';$('pn').focus()}}
+function manual(){const v=$('man').value.trim();if(!v)return;const p=P.find(x=>x.b===v)||P.find(x=>x.n.includes(v));if(p){add(p);$('man').value=''}else toast('المنتج غير موجود')}
+function add(p){const c=cart.find(x=>x.b===p.b),q=c?c.q:0;
+ if(q+1>p.s){toast('⚠ المخزون غير كافٍ: '+p.n+' (متبقي '+p.s+')');return}
+ if(c)c.q++;else cart.push({b:p.b,n:p.n,p:p.p,q:1});toast('✔ '+p.n);rc()}
+function chg(i,d){const c=cart[i],p=P.find(x=>x.b===c.b);c.q+=d;if(c.q<=0)cart.splice(i,1);else if(c.q>p.s){c.q=p.s;toast('أقصى كمية متوفرة '+p.s)}rc()}
+function rc(){let t=0;$('cart').innerHTML=cart.length?cart.map((c,i)=>{t+=c.p*c.q;return `<div class="item"><div>${esc(c.n)}<small>${f(c.p)} دج × ${c.q} = ${f(c.p*c.q)} دج</small></div><div class="q"><button onclick="chg(${i},-1)">−</button><b>${c.q}</b><button onclick="chg(${i},1)">+</button></div></div>`}).join(''):'<div style="color:var(--mu);text-align:center;padding:14px">السلة فارغة - امسح منتجاً</div>';$('total').textContent=f(t)+' دج'}
+function pay(){if(!cart.length)return;let t=0;cart.forEach(c=>{const p=P.find(x=>x.b===c.b);p.s-=c.q;t+=c.p*c.q});S.unshift({t:Date.now(),items:cart.map(c=>({...c})),total:t});S=S.slice(0,500);save();cart=[];rc();toast('تم البيع: '+f(t)+' دج')}
+function saveP(){const b=$('pb').value.trim(),n=$('pn').value.trim(),p=parseFloat($('pp').value),s=parseInt($('ps').value);
+ if(!b||!n||isNaN(p)||isNaN(s)){toast('املأ كل الحقول');return}
+ const i=P.findIndex(x=>x.b===b),o={b,n,p,s};if(i>=0)P[i]=o;else P.push(o);save();['pb','pn','pp','ps'].forEach(x=>$(x).value='');toast('تم الحفظ');rp()}
+function edit(b){const p=P.find(x=>x.b===b);$('pb').value=p.b;$('pn').value=p.n;$('pp').value=p.p;$('ps').value=p.s;scrollTo(0,0)}
+function del(b){if(confirm('حذف المنتج؟')){P=P.filter(x=>x.b!==b);save();rp()}}
+function rp(){const q=$('sq').value.trim();const l=P.filter(p=>!q||p.n.includes(q)||p.b.includes(q));
+ $('plist').innerHTML=l.length?l.map(p=>`<div class="item"><div onclick="edit('${esc(p.b)}')">${esc(p.n)}<small>${esc(p.b)} · ${f(p.p)} دج · المخزون: <span class="${p.s<=0?'out':p.s<=5?'low':''}">${p.s}</span></small></div><button class="d" onclick="del('${esc(p.b)}')">حذف</button></div>`).join(''):'<div style="color:var(--mu);text-align:center">لا توجد منتجات</div>'}
+function rr(){const d=new Date().toDateString(),td=S.filter(s=>new Date(s.t).toDateString()===d);
+ $('r1').textContent=f(td.reduce((a,s)=>a+s.total,0));$('r2').textContent=td.length;
+ const lw=P.filter(p=>p.s<=5);$('lowl').innerHTML=lw.length?lw.map(p=>`<div class="item"><span>${esc(p.n)}</span><span class="${p.s<=0?'out':'low'}">${p.s}</span></div>`).join(''):'<small style="color:var(--mu)">كل شيء متوفر ✔</small>';
+ $('sl').innerHTML=S.slice(0,15).map(s=>`<div class="item"><div>${new Date(s.t).toLocaleString('ar-DZ')}<small>${s.items.map(i=>esc(i.n)+'×'+i.q).join('، ')}</small></div><b>${f(s.total)}</b></div>`).join('')||'<small style="color:var(--mu)">لا عمليات بعد</small>'}
+function backup(){const t=JSON.stringify({P,S});navigator.clipboard?.writeText(t).then(()=>toast('تم النسخ للحافظة'),()=>toast('تعذر النسخ'))}
+rc();
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
