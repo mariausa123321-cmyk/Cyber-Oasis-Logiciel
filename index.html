@@ -19,7 +19,7 @@ main{max-width:640px;margin:0 auto;padding:12px}
 button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:10px 14px;background:var(--pr);color:var(--pt);font-weight:600}
 button.g{background:transparent;color:var(--pr);border:1px solid var(--pr)}
 button.d{background:transparent;color:var(--rd);border:1px solid var(--rd);padding:6px 10px}
-input{font:inherit;width:100%;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx)}
+input,textarea{font:inherit;width:100%;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx)}
 label{font-size:13px;color:var(--mu);display:block;margin:8px 0 3px}
 .row{display:flex;gap:8px;align-items:center}.row>*{flex:1}
 .item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--bd)}
@@ -66,21 +66,28 @@ nav button.on{color:var(--pr);border-top:3px solid var(--pr)}
  <div class="card"><b>مبيعات اليوم</b><div class="st" style="margin-top:8px"><div><b id="r1">0</b>دج</div><div><b id="r2">0</b>عدد الفواتير</div></div></div>
  <div class="card"><b>تنبيه المخزون (≤ 5)</b><div id="lowl"></div></div>
  <div class="card"><b>آخر العمليات</b><div id="sl"></div></div>
- <button class="g" style="width:100%" onclick="backup()">💾 نسخة احتياطية (نسخ)</button>
+ <button class="g" style="width:100%" onclick="exportF()">💾 تصدير نسخة احتياطية</button>
+</section>
+<section id="v-acc" class="hide">
+ <div class="card"><b>☁ الحفظ السحابي الآمن</b><div id="st" style="color:var(--mu);margin:6px 0">غير مفعّل</div>
+  <div id="lb"><label>البريد الإلكتروني</label><input id="em" type="email" autocomplete="username"><label>كلمة المرور (6 أحرف فأكثر)</label><input id="pw" type="password" autocomplete="current-password"><div class="row" style="margin-top:8px"><button onclick="auth('in')">دخول</button><button class="g" onclick="auth('new')">إنشاء حساب</button></div></div>
+  <button id="lo" class="d hide" onclick="fb.auth().signOut()">تسجيل الخروج</button></div>
+ <div class="card"><b>⚙ إعدادات Firebase (مرة واحدة)</b><label>ألصق هنا firebaseConfig كما نسخته</label><textarea id="cfg" rows="5" dir="ltr"></textarea><button style="margin-top:8px;width:100%" onclick="saveCfg()">حفظ الإعدادات</button></div>
+ <div class="card"><b>💾 نسخة احتياطية بملف</b><div class="row" style="margin-top:8px"><button onclick="exportF()">تصدير</button><button class="g" onclick="$('imp').click()">استيراد</button></div><input id="imp" type="file" accept=".json,application/json" class="hide" onchange="importF(this)"></div>
 </section>
 </main>
-<nav><button class="on" onclick="tab('sale',this)">🛒 البيع</button><button onclick="tab('prod',this)">📦 المنتجات</button><button onclick="tab('rep',this)">📊 التقرير</button></nav>
+<nav><button class="on" onclick="tab('sale',this)">🛒 البيع</button><button onclick="tab('prod',this)">📦 المنتجات</button><button onclick="tab('rep',this)">📊 التقرير</button><button onclick="tab('acc',this)">☁ الحساب</button></nav>
 <div id="ov"><div id="fr" class="fr"><video id="vd" playsinline muted autoplay></video></div><div id="reader" class="hide"></div><div id="hint" style="color:#fff;text-align:center"></div><div class="row" style="max-width:420px"><button id="tb" class="hide" onclick="torch()">🔦 الفلاش</button><button onclick="$('pf').click()">📸 تصوير</button><button onclick="stopScan()">✖ إغلاق</button></div></div><input id="pf" type="file" accept="image/*" capture="environment" class="hide" onchange="photo(this)">
 <div id="toast"></div>
 <script>
 let P=[],S=[],cart=[],mode='sale',sc=null,last=0;
 try{P=JSON.parse(localStorage.getItem('lg_p')||'[]');S=JSON.parse(localStorage.getItem('lg_s')||'[]')}catch(e){}
 const $=id=>document.getElementById(id);
-const save=()=>{try{localStorage.setItem('lg_p',JSON.stringify(P));localStorage.setItem('lg_s',JSON.stringify(S))}catch(e){}};
+const save=()=>{try{localStorage.setItem('lg_p',JSON.stringify(P));localStorage.setItem('lg_s',JSON.stringify(S));localStorage.setItem('lg_u',Date.now())}catch(e){}push()};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const f=n=>(Math.round(n*100)/100).toLocaleString('en');
 function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',2200)}
-function tab(n,b){['sale','prod','rep'].forEach(x=>$('v-'+x).classList.toggle('hide',x!==n));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');if(n==='prod')rp();if(n==='rep')rr()}
+function tab(n,b){['sale','prod','rep','acc'].forEach(x=>$('v-'+x).classList.toggle('hide',x!==n));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');if(n==='prod')rp();if(n==='rep')rr()}
 function beep(){try{const a=new AudioContext(),o=a.createOscillator();o.connect(a.destination);o.frequency.value=900;o.start();setTimeout(()=>{o.stop();a.close()},120)}catch(e){}}
 let stream=null,tm=0,tOn=false;
 async function scan(m){mode=m;$('ov').classList.add('on');$('hint').textContent='وجّه الكاميرا نحو الباركود';$('tb').classList.add('hide');$('fr').classList.remove('hide');
@@ -130,7 +137,33 @@ function rr(){const d=new Date().toDateString(),td=S.filter(s=>new Date(s.t).toD
  const lw=P.filter(p=>p.s<=5);$('lowl').innerHTML=lw.length?lw.map(p=>`<div class="item"><span>${esc(p.n)}</span><span class="${p.s<=0?'out':'low'}">${p.s}</span></div>`).join(''):'<small style="color:var(--mu)">كل شيء متوفر ✔</small>';
  $('sl').innerHTML=S.slice(0,15).map(s=>`<div class="item"><div>${new Date(s.t).toLocaleString('ar-DZ')}<small>${s.items.map(i=>esc(i.n)+'×'+i.q).join('، ')}</small></div><b>${f(s.total)}</b></div>`).join('')||'<small style="color:var(--mu)">لا عمليات بعد</small>'}
 function backup(){const t=JSON.stringify({P,S});navigator.clipboard?.writeText(t).then(()=>toast('تم النسخ للحافظة'),()=>toast('تعذر النسخ'))}
-rc();
+let fb=null,user=null,pushT=0;
+const U=()=>{try{return +localStorage.getItem('lg_u')||0}catch(e){return 0}};
+function setSt(t){const e=$('st');if(e)e.textContent=t}
+function ref(n){return fb.firestore().collection('users').doc(user.uid).collection('data').doc(n)}
+function push(){if(!user||!fb)return;clearTimeout(pushT);setSt('⏳ جارٍ الحفظ في السحابة...');
+ pushT=setTimeout(async()=>{try{const u=Date.now();await Promise.all([ref('p').set({d:JSON.stringify(P),u}),ref('s').set({d:JSON.stringify(S),u})]);try{localStorage.setItem('lg_u',u)}catch(e){}setSt('☁ تمت المزامنة '+new Date().toLocaleTimeString('ar-DZ'))}catch(e){setSt('⚠ تعذرت المزامنة، ستُعاد المحاولة عند الحفظ التالي')}},1500)}
+async function pull(){const [a,b]=await Promise.all([ref('p').get(),ref('s').get()]);
+ if(a.exists&&a.data().u>U()){P=JSON.parse(a.data().d);S=b.exists?JSON.parse(b.data().d):S;try{localStorage.setItem('lg_p',JSON.stringify(P));localStorage.setItem('lg_s',JSON.stringify(S));localStorage.setItem('lg_u',a.data().u)}catch(e){}rc();rp();setSt('☁ تم تحميل بياناتك من السحابة ✔')}
+ else push()}
+async function loadFB(){if(window.firebase)return;for(const n of ['app','auth','firestore'])await new Promise((ok,no)=>{const t=document.createElement('script');t.src='https://www.gstatic.com/firebasejs/10.12.2/firebase-'+n+'-compat.js';t.onload=ok;t.onerror=no;document.head.appendChild(t)})}
+async function initCloud(){let c=null;try{c=JSON.parse(localStorage.getItem('lg_cfg')||'null')}catch(e){}
+ if(!c){setSt('غير مفعّل: أدخل إعدادات Firebase أدناه');return}
+ $('cfg').value=JSON.stringify(c);
+ try{await loadFB();if(!firebase.apps.length)firebase.initializeApp(c);fb=firebase;
+  fb.auth().onAuthStateChanged(async u=>{user=u;$('lb').classList.toggle('hide',!!u);$('lo').classList.toggle('hide',!u);
+   if(u){setSt('☁ متصل: '+u.email);try{await pull()}catch(e){setSt('⚠ تعذر الوصول للسحابة: '+(e.code||e.message))}}else setSt('سجّل الدخول لتفعيل الحفظ السحابي')})
+ }catch(e){setSt('⚠ تعذر تحميل Firebase، تحقق من الإنترنت')}}
+function saveCfg(){const c={};for(const m of $('cfg').value.matchAll(/(\w+)\s*:\s*["']([^"']+)["']/g))c[m[1]]=m[2];
+ if(!c.apiKey||!c.projectId){try{Object.assign(c,JSON.parse($('cfg').value))}catch(e){}}
+ if(!c.apiKey||!c.projectId){toast('الإعدادات غير صحيحة');return}
+ try{localStorage.setItem('lg_cfg',JSON.stringify(c))}catch(e){}location.reload()}
+async function auth(k){const e=$('em').value.trim(),p=$('pw').value;if(!fb){toast('احفظ إعدادات Firebase أولاً');return}
+ if(!e||p.length<6){toast('أدخل بريدًا وكلمة مرور من 6 أحرف فأكثر');return}
+ try{k==='new'?await fb.auth().createUserWithEmailAndPassword(e,p):await fb.auth().signInWithEmailAndPassword(e,p)}catch(x){toast('خطأ: '+(x.code||x.message))}}
+function exportF(){const b=new Blob([JSON.stringify({P,S,t:Date.now()})],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='logisel-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+function importF(i){const f=i.files[0];i.value='';if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.P)||!Array.isArray(d.S))throw 0;if(!confirm('سيتم استبدال البيانات الحالية بالنسخة الاحتياطية. متابعة؟'))return;P=d.P;S=d.S;save();rc();rp();toast('تم الاستيراد ✔')}catch(e){toast('ملف غير صالح')}};r.readAsText(f)}
+rc();initCloud();
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
